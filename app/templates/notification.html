@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ notification_title or "Important Notification" }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Different header styles based on notification type */
+        .header-info {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+        }
+        
+        .header-warning {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+        }
+        
+        .header-success {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+        }
+        
+        .header-error {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+        }
+        
+        .header {
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .header .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .alert-box {
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid;
+        }
+        
+        .alert-info {
+            background-color: #e3f2fd;
+            border-left-color: #2196f3;
+            color: #0d47a1;
+        }
+        
+        .alert-warning {
+            background-color: #fff8e1;
+            border-left-color: #ff9800;
+            color: #e65100;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e8;
+            border-left-color: #4caf50;
+            color: #1b5e20;
+        }
+        
+        .alert-error {
+            background-color: #ffebee;
+            border-left-color: #f44336;
+            color: #b71c1c;
+        }
+        
+        .alert-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .content h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: transform 0.2s ease;
+            margin: 20px 0;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+            box-shadow: 0 4px 15px rgba(253, 203, 110, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+        }
+        
+        .btn-error {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-center {
+            text-align: center;
+        }
+        
+        .notification-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .details-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px 20px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        .timeline {
+            margin: 30px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .timeline-marker-info {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+        }
+        
+        .timeline-marker-warning {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+        }
+        
+        .timeline-marker-success {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+        }
+        
+        .timeline-marker-error {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-time {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-description {
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .action-required {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .action-required h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .security-notice {
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .security-notice h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .security-tips {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .security-tips li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .security-tips li::before {
+            content: '🔒';
+            position: absolute;
+            left: 0;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer p {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .contact-info {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .contact-info h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+        
+        .contact-info p {
+            color: #0d47a1;
+            margin: 5px 0;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px !important;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr !important;
+                gap: 5px !important;
+            }
+            
+            .timeline-item {
+                flex-direction: column !important;
+            }
+            
+            .timeline-marker {
+                margin-right: 0 !important;
+                margin-bottom: 10px !important;
+                align-self: flex-start;
+            }
+            
+            .btn {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header header-{{ notification_type or 'info' }}">
+            {% if notification_type == 'warning' %}
+                <div class="icon">⚠️</div>
+            {% elif notification_type == 'success' %}
+                <div class="icon">✅</div>
+            {% elif notification_type == 'error' %}
+                <div class="icon">🚨</div>
+            {% else %}
+                <div class="icon">ℹ️</div>
+            {% endif %}
+            
+            <h1>{{ notification_title or "Important Notification" }}</h1>
+            <div class="subtitle">{{ subtitle or "Please review this information" }}</div>
+        </div>
+        
+        <div class="content">
+            <h2>Hello {{ user_name or "there" }}!</h2>
+            
+            <div class="alert-box alert-{{ notification_type or 'info' }}">
+                <div class="alert-title">
+                    {% if notification_type == 'warning' %}
+                        ⚠️ Attention Required
+                    {% elif notification_type == 'success' %}
+                        ✅ Action Completed Successfully
+                    {% elif notification_type == 'error' %}
+                        🚨 Urgent: Action Required
+                    {% else %}
+                        ℹ️ Information Update
+                    {% endif %}
+                </div>
+                <p>{{ alert_message or "We have an important update regarding your account. Please review the details below and take any necessary action." }}</p>
+            </div>
+            
+            <p>{{ main_message or "This notification contains important information about your account or service. Please take a moment to review the details carefully." }}</p>
+            
+            {% if notification_details %}
+            <div class="notification-details">
+                <div class="details-title">📋 Notification Details</div>
+                <div class="details-grid">
+                    {% for key, value in notification_details.items() %}
+                    <div class="detail-label">{{ key }}:</div>
+                    <div class="detail-value">{{ value }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="notification-details">
+                <div class="details-title">📋 Notification Details</div>
+                <div class="details-grid">
+                    <div class="detail-label">Date:</div>
+                    <div class="detail-value">{{ notification_date or "December 30, 2024" }}</div>
+                    <div class="detail-label">Time:</div>
+                    <div class="detail-value">{{ notification_time or "10:30 AM PST" }}</div>
+                    <div class="detail-label">Reference ID:</div>
+                    <div class="detail-value">{{ reference_id or "NTF-2024-12345" }}</div>
+                    <div class="detail-label">Priority:</div>
+                    <div class="detail-value">{{ priority or "High" }}</div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if timeline_events %}
+            <div class="timeline">
+                <h3>📅 Timeline of Events</h3>
+                {% for event in timeline_events %}
+                <div class="timeline-item">
+                    <div class="timeline-marker timeline-marker-{{ event.type or 'info' }}">
+                        {{ loop.index }}
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">{{ event.title }}</div>
+                        <div class="timeline-time">{{ event.time }}</div>
+                        <div class="timeline-description">{{ event.description }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if action_required %}
+            <div class="action-required">
+                <h3>🎯 Action Required</h3>
+                <p>{{ action_message or "Please take the following action to resolve this matter:" }}</p>
+                <div class="btn-center">
+                    <a href="{{ action_url or '#' }}" class="btn btn-{{ notification_type or 'info' }}">{{ action_button_text or "Take Action Now" }}</a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if security_related %}
+            <div class="security-notice">
+                <h3>🔐 Security Notice</h3>
+                <p>{{ security_message or "This notification is related to your account security. Please follow these best practices:" }}</p>
+                <ul class="security-tips">
+                    <li>Never share your login credentials with anyone</li>
+                    <li>Use strong, unique passwords for all accounts</li>
+                    <li>Enable two-factor authentication when available</li>
+                    <li>Verify the sender before clicking any links</li>
+                    <li>Contact support if you notice suspicious activity</li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            {% if contact_required %}
+            <div class="contact-info">
+                <h4>📞 Need Help?</h4>
+                <p>If you have questions about this notification, please contact us:</p>
+                <p><strong>Phone:</strong> {{ support_phone or "1-800-123-4567" }}</p>
+                <p><strong>Email:</strong> {{ support_email or "support@company.com" }}</p>
+                <p><strong>Hours:</strong> {{ support_hours or "Mon-Fri 9AM-6PM PST" }}</p>
+            </div>
+            {% endif %}
+            
+            <p><strong>What happens next?</strong> {{ next_steps or "We will continue to monitor this situation and keep you updated. No further action is required from you at this time unless specified above." }}</p>
+            
+            <p style="margin-top: 30px;"><em>Thank you for your attention to this matter. We appreciate your prompt response and cooperation.</em></p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 {{ company_name or "Your Company" }}. All rights reserved.</p>
+            <p>This notification was sent to {{ user_email }} regarding your account.</p>
+            <p>If you have questions, please contact our support team.</p>
+            {% if unsubscribe_url %}
+            <p><a href="{{ unsubscribe_url }}" style="color: #666;">Unsubscribe from notifications</a></p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

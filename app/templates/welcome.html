@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Our Community!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .header .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .content h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: transform 0.2s ease;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-center {
+            text-align: center;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .feature-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .welcome-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .next-steps {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .next-steps h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        
+        .steps-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-text {
+            font-size: 15px;
+            color: #333;
+        }
+        
+        .social-proof {
+            background-color: #e8f5e8;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .social-proof h3 {
+            color: #2d5a2d;
+            margin-bottom: 15px;
+        }
+        
+        .testimonial {
+            font-style: italic;
+            color: #2d5a2d;
+            margin-bottom: 10px;
+        }
+        
+        .author {
+            font-weight: 600;
+            color: #1a4a1a;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer p {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 20px;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px !important;
+            }
+            
+            .header h1 {
+                font-size: 28px !important;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+            
+            .btn {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="icon">🎉</div>
+            <h1>Welcome {{ user_name or "Friend" }}!</h1>
+            <p>You're now part of our amazing community</p>
+        </div>
+        
+        <div class="content">
+            <h2>Thank you for joining us!</h2>
+            
+            <p>We're thrilled to have you as part of our community! Your subscription to {{ subscription_type or "our newsletter" }} has been confirmed, and you're all set to receive amazing content.</p>
+            
+            <div class="welcome-stats">
+                <h3>Join {{ total_subscribers or "10,000+" }} happy subscribers!</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ total_subscribers or "10K+" }}</div>
+                        <div class="stat-label">Subscribers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ countries or "50+" }}</div>
+                        <div class="stat-label">Countries</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ satisfaction or "98%" }}</div>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📧</div>
+                    <div class="feature-title">Weekly Newsletter</div>
+                    <div class="feature-description">Get the latest updates, tips, and insights delivered directly to your inbox every week.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎁</div>
+                    <div class="feature-title">Exclusive Content</div>
+                    <div class="feature-description">Access subscriber-only content, early releases, and special offers just for you.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-title">Community Access</div>
+                    <div class="feature-description">Join our private community and connect with like-minded individuals.</div>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h3>🚀 Get Started in 3 Easy Steps</h3>
+                <ul class="steps-list">
+                    <li class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Complete your profile to personalize your experience</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Follow us on social media for daily updates</div>
+                    </li>
+                    <li class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Share with friends and earn exclusive rewards</div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="btn-center">
+                <a href="{{ profile_url or '#' }}" class="btn">Complete Your Profile</a>
+            </div>
+            
+            <div class="social-proof">
+                <h3>What our subscribers say</h3>
+                <div class="testimonial">"{{ testimonial or 'The best newsletter I\'ve ever subscribed to. Always valuable content!' }}"</div>
+                <div class="author">- {{ testimonial_author or "Sarah K., Happy Subscriber" }}</div>
+            </div>
+            
+            <p>We're committed to providing you with valuable content and respecting your inbox. You can update your preferences or unsubscribe at any time.</p>
+        </div>
+        
+        <div class="footer">
+            <div class="social-links">
+                <a href="{{ facebook_url or '#' }}">f</a>
+                <a href="{{ twitter_url or '#' }}">t</a>
+                <a href="{{ instagram_url or '#' }}">i</a>
+                <a href="{{ linkedin_url or '#' }}">in</a>
+            </div>
+            
+            <p>&copy; 2025 {{ company_name or "Your Company" }}. All rights reserved.</p>
+            <p>You're receiving this because you subscribed to {{ subscription_type or "our newsletter" }}.</p>
+            <p><a href="{{ unsubscribe_url or '#' }}" style="color: #667eea;">Unsubscribe</a> | <a href="{{ preferences_url or '#' }}" style="color: #667eea;">Update Preferences</a></p>
+        </div>
+    </div>
+</body>
+</html>

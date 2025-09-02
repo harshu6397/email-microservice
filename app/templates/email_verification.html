@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email Address</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .content h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: transform 0.2s ease;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-center {
+            text-align: center;
+        }
+        
+        .code-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .verification-code {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4CAF50;
+            letter-spacing: 6px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .expiry-notice {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .expiry-notice p {
+            color: #856404;
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer p {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .security-notice {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .security-notice p {
+            color: #0c5460;
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px !important;
+            }
+            
+            .header h1 {
+                font-size: 24px !important;
+            }
+            
+            .content h2 {
+                font-size: 20px !important;
+            }
+            
+            .btn {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .verification-code {
+                font-size: 28px !important;
+                letter-spacing: 4px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="icon">✉️</div>
+            <h1>Email Verification</h1>
+            <p>Please verify your email address to continue</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hello {{ user_name or "there" }}!</h2>
+            
+            <p>Thank you for signing up! To complete your registration and secure your account, please verify your email address.</p>
+            
+            <div class="btn-center">
+                <a href="{{ verification_url }}" class="btn">Verify Email Address</a>
+            </div>
+            
+            <p>Or enter this verification code manually:</p>
+            
+            <div class="code-box">
+                <div class="code-label">Verification Code</div>
+                <div class="verification-code">{{ verification_code or "123456" }}</div>
+            </div>
+            
+            <div class="expiry-notice">
+                <p><strong>⏰ Important:</strong> This verification code will expire in {{ expiry_time or "24 hours" }}. Please verify your email as soon as possible.</p>
+            </div>
+            
+            <div class="security-notice">
+                <p><strong>🔒 Security Notice:</strong> If you didn't create an account with us, you can safely ignore this email. Someone may have entered your email address by mistake.</p>
+            </div>
+            
+            <p>If you're having trouble with the button above, copy and paste the following link into your web browser:</p>
+            <p style="word-break: break-all; color: #667eea; font-size: 14px;">{{ verification_url }}</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 {{ company_name or "Your Company" }}. All rights reserved.</p>
+            <p>This email was sent to {{ user_email }}. If you didn't expect this email, please contact our support team.</p>
+        </div>
+    </div>
+</body>
+</html>
