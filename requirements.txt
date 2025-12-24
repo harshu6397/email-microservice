@@ -7,3 +7,5 @@ aiosmtplib==3.0.1
 jinja2==3.1.2
 python-dotenv==1.0.0
 email-validator==2.1.0
+motor==3.3.2
+pymongo==4.6.0

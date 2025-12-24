@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Service - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5b21b6;
+            --primary-light: #7c3aed;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f9fafb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            padding: 50px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-size: 32px;
+            color: var(--dark);
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-header p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .form-group input {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+        }
+
+        .login-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(91, 33, 182, 0.3);
+        }
+
+        .main {
+            display: none;
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        .main.show {
+            display: block;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .navbar {
+            background: white;
+            padding: 20px 0;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+        }
+
+        .navbar h2 {
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .navbar-badge {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .panel:hover {
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-5px);
+        }
+
+        .panel-preview {
+            grid-column: 1 / -1;
+            min-height: 500px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 2px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(91, 33, 182, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 14px 20px;
+            font-size: 14px;
+        }
+
+        .recipients-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 0;
+        }
+
+        .recipient-chip {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .recipient-chip button {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+
+        .recipient-chip button:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .preview-box {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 450px;
+            max-height: none;
+            overflow-y: auto;
+        }
+
+        .preview-empty {
+            text-align: center;
+            color: var(--gray);
+            padding: 60px 20px;
+            font-size: 14px;
+        }
+
+        .preview-content {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            line-height: 1.7;
+            color: var(--dark);
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .template-card {
+            background: linear-gradient(135deg, var(--light) 0%, #e5e7eb 100%);
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.15);
+        }
+
+        .template-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 13px;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .template-actions .btn {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 11px;
+            justify-content: center;
+        }
+
+        .history-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .history-card {
+            background: linear-gradient(135deg, #f9fafb 0%, var(--light) 100%);
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .history-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.1);
+        }
+
+        .history-subject {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 13px;
+        }
+
+        .history-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 11px;
+            color: var(--gray);
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .alert {
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #ef4444;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .template-variable {
+            transition: all 0.2s ease;
+        }
+
+        .template-variable:focus {
+            outline: none;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .section-divider {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>📧</h1>
+                <h1>Email Service</h1>
+                <p>Access your email dashboard</p>
+            </div>
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="passwordInput" placeholder="Enter dashboard password" required>
+                </div>
+                <button type="submit" class="login-btn">Access Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="main" id="mainDashboard">
+        <div class="container">
+            <!-- Navbar -->
+            <div class="navbar">
+                <h2>📧 Email Service</h2>
+                <div class="navbar-actions">
+                    <div class="navbar-badge">✓ Connected</div>
+                    <button class="logout-btn" onclick="handleLogout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard">
+                <!-- Compose Email Panel -->
+                <div class="panel">
+                    <div class="panel-title">Compose Email</div>
+
+                    <label>Template (Optional)</label>
+                    <select id="templateSelect" onchange="loadTemplateContent()">
+                        <option value="">-- Select a template --</option>
+                    </select>
+
+                    <div id="variablesContainer" style="display: none; margin: 16px 0; padding: 16px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        <div style="font-weight: 600; color: #1e40af; margin-bottom: 12px;">📝 Template Variables</div>
+                        <div id="variableInputs"></div>
+                    </div>
+
+                    <label>Recipients</label>
+                    <div class="input-group">
+                        <input type="email" id="emailInput" placeholder="Enter email address">
+                        <button type="button" class="btn btn-secondary" onclick="addRecipient()">Add</button>
+                    </div>
+                    <div class="recipients-container" id="recipientsList"></div>
+
+                    <label>Subject</label>
+                    <input type="text" id="subject" placeholder="Email subject">
+
+                    <label>Message</label>
+                    <textarea id="message" placeholder="Enter message content..." oninput="updatePreview()"></textarea>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="ccMe">
+                        <label for="ccMe" style="margin: 0;">CC Me</label>
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-block" onclick="sendEmail()">🚀 Send Email</button>
+                </div>
+
+                <!-- Preview Panel -->
+                <div class="panel">
+                    <div class="panel-title">Preview</div>
+                    <div class="preview-box">
+                        <div id="preview" class="preview-empty">
+                            Select a template or enter message to preview
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manage Templates Panel -->
+                <div class="panel">
+                    <div class="panel-title">Manage Templates</div>
+                    <button type="button" class="btn btn-success" onclick="openNewTemplateModal()" style="margin-bottom: 16px;">+ New Template</button>
+                    <div class="templates-grid" id="templatesList">
+                        <div class="empty-state"><p>Loading templates...</p></div>
+                    </div>
+                </div>
+
+                <!-- Send History Panel -->
+                <div class="panel">
+                    <div class="panel-title">Send History</div>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state"><p>No emails sent yet</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div class="modal" id="templateModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Create New Template</h3>
+            <form onsubmit="saveTemplate(event)">
+                <div class="form-group">
+                    <label>Template Name</label>
+                    <input type="text" id="templateName" placeholder="e.g., Welcome Email" required>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="templateContent" placeholder="Enter template content (HTML supported)" required style="min-height: 200px;"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('templateModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Template</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Template Modal -->
+    <div class="modal" id="editTemplateModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Edit Template</h3>
+            <form onsubmit="saveEditTemplate(event)">
+                <input type="hidden" id="editTemplateId">
+                <div class="form-group">
+                    <label>Template Name</label>
+                    <input type="text" id="editTemplateName" required>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="editTemplateContent" required style="min-height: 200px;"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editTemplateModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Detail Modal -->
+    <div class="modal" id="historyDetailModal">
+        <div class="modal-content" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <h3 class="modal-title">Email Details</h3>
+            <div id="historyDetailContent" style="margin-top: 20px;">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-actions" style="margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('historyDetailModal')" style="flex: 1; justify-content: center;">Close</button>
+                <button type="button" class="btn btn-primary" onclick="resendHistoryEmail()" style="flex: 1; justify-content: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-left: 10px;">🔄 Resend Email</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let recipients = [];
+        let isAuthenticated = false;
+
+        // Authentication
+        function handleLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+
+            // In a real app, this would validate against the server
+            // For now, we'll use sessionStorage
+            if (password) {
+                sessionStorage.setItem('auth_token', btoa(password));
+                isAuthenticated = true;
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainDashboard').classList.add('show');
+                initDashboard();
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('auth_token');
+                isAuthenticated = false;
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('mainDashboard').classList.remove('show');
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        // Dashboard Init
+        async function initDashboard() {
+            await loadTemplates();
+            await loadHistory();
+        }
+
+        // Template Management
+        async function loadTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/templates`);
+                const templates = await response.json();
+
+                // Populate template select
+                const select = document.getElementById('templateSelect');
+                select.innerHTML = '<option value="">-- Select a template --</option>';
+                templates.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.name;
+                    option.textContent = t.name.replace(/_/g, ' ').toUpperCase();
+                    select.appendChild(option);
+                });
+
+                // Populate templates list
+                const list = document.getElementById('templatesList');
+                if (templates.length === 0) {
+                    list.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><p>No templates yet</p></div>';
+                    return;
+                }
+
+                list.innerHTML = templates.map(t => `
+                    <div class="template-card">
+                        <div class="template-name" title="${t.name}">${t.name.replace(/_/g, ' ').toUpperCase()}</div>
+                        <div class="template-actions">
+                            <button type="button" class="btn btn-secondary" onclick="editTemplate('${t.name}')">Edit</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteTemplate('${t.name}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showAlert('Failed to load templates', 'error');
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/send-history`);
+                const history = await response.json();
+
+                const list = document.getElementById('historyList');
+                if (!history || history.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><p>No emails sent yet</p></div>';
+                    return;
+                }
+
+                list.innerHTML = history.map(item => {
+                    const date = new Date(item.timestamp);
+                    const recipientCount = item.recipients_count || (item.to ? item.to.length : 0);
+                    const templateBadge = item.template_name ? `<span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Template: ${item.template_name}</span>` : '';
+                    
+                    return `
+                        <div class="history-card">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                <div class="history-subject">${item.subject}</div>
+                                <button type="button" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="viewHistoryDetail('${item._id}')">View Details</button>
+                            </div>
+                            <div class="history-meta">
+                                <span>📅 ${date.toLocaleDateString()} ${date.toLocaleTimeString()}</span>
+                                <span>👥 ${recipientCount} recipient${recipientCount !== 1 ? 's' : ''}</span>
+                                <span>✓ Sent</span>
+                            </div>
+                            ${templateBadge}
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                // Silent
+            }
+        }
+
+        async function viewHistoryDetail(emailId) {
+            try {
+                const response = await fetch(`${API_BASE}/send-history/${emailId}`);
+                const detail = await response.json();
+                
+                // Store detail globally for resend function
+                window.currentHistoryDetail = detail;
+                
+                // Populate modal with details
+                const modal = document.getElementById('historyDetailModal');
+                const content = document.getElementById('historyDetailContent');
+                
+                const date = new Date(detail.timestamp);
+                const recipientCount = detail.recipients_count || (detail.to ? detail.to.length : 0);
+                
+                const templateSection = detail.template_name ? `
+                    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
+                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 12px;">📋 Template Used</div>
+                        <div style="background: #f9fafb; padding: 12px; border-radius: 6px; font-size: 13px;">
+                            <div><strong>Name:</strong> ${detail.template_name}</div>
+                            ${Object.keys(detail.template_variables || {}).length > 0 ? `
+                                <div style="margin-top: 8px;">
+                                    <strong>Variables Used:</strong>
+                                    <div style="background: white; padding: 8px; border-radius: 4px; margin-top: 6px; font-family: monospace; font-size: 12px;">
+                                        ${Object.entries(detail.template_variables).map(([key, value]) => `
+                                            <div><span style="color: #7c3aed;">${key}</span>: <span style="color: #059669;">"${value}"</span></div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : '';
+                
+                const previewSection = detail.html_body_full ? `
+                    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
+                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 12px;">👁️ Email Preview</div>
+                        <div style="background: #f9fafb; padding: 16px; border-radius: 6px; border: 1px solid #e5e7eb; max-height: 400px; overflow-y: auto;">
+                            <iframe style="width: 100%; height: 300px; border: none; border-radius: 4px;" srcdoc="${escapeHtml(detail.html_body_full)}"></iframe>
+                        </div>
+                    </div>
+                ` : '';
+                
+                content.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin: 0 0 8px 0; color: var(--dark);">${detail.subject}</h3>
+                        <div style="color: var(--gray); font-size: 13px;">
+                            Sent on ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
+                        <div style="font-weight: 600; color: var(--dark); margin-bottom: 12px;">📧 Recipients (${recipientCount})</div>
+                        <div style="background: #f9fafb; padding: 12px; border-radius: 6px; max-height: 150px; overflow-y: auto;">
+                            ${detail.to.map(email => `<div style="padding: 4px 0; font-size: 13px;">✓ ${email}</div>`).join('')}
+                        </div>
+                    </div>
+                    
+                    ${templateSection}
+                    ${previewSection}
+                    
+                    <div style="padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 12px; color: var(--gray);">
+                            Email ID: <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-family: monospace;">${detail._id}</code>
+                        </div>
+                    </div>
+                `;
+                
+                openModal('historyDetailModal');
+            } catch (error) {
+                showAlert('Failed to load email details', 'error');
+            }
+        }
+
+        function resendHistoryEmail() {
+            const detail = window.currentHistoryDetail;
+            if (!detail) {
+                showAlert('No email data available', 'error');
+                return;
+            }
+
+            // Close the detail modal
+            closeModal('historyDetailModal');
+
+            // Populate the compose form
+            // Set recipients
+            recipients = [...detail.to];
+            updateRecipientsList();
+
+            // Set subject
+            document.getElementById('subject').value = detail.subject;
+
+            // Set message/HTML body
+            document.getElementById('message').value = detail.html_body_full || detail.html_body_preview || '';
+
+            // Set template if it was used
+            if (detail.template_name) {
+                document.getElementById('templateSelect').value = detail.template_name;
+                
+                // Populate variables if they exist
+                if (detail.template_variables && Object.keys(detail.template_variables).length > 0) {
+                    const variablesContainer = document.getElementById('variablesContainer');
+                    const variableInputs = document.getElementById('variableInputs');
+                    
+                    variablesContainer.style.display = 'block';
+                    variableInputs.innerHTML = Object.entries(detail.template_variables).map(([varName, value]) => `
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-size: 13px; font-weight: 500; color: #1e40af; margin-bottom: 4px;">${varName}</label>
+                            <input type="text" class="template-variable" data-variable="${varName}" placeholder="Enter ${varName}..." style="width: 100%; padding: 8px 12px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 13px;" value="${escapeHtml(value)}">
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Update preview
+            updatePreview();
+
+            // Scroll to compose section
+            document.querySelector('.panel').scrollIntoView({ behavior: 'smooth' });
+
+            showAlert('✓ Email loaded for resending. Review and adjust if needed, then click Send.', 'success');
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Recipients
+        function addRecipient() {
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showAlert('Enter a valid email address', 'error');
+                return;
+            }
+            if (recipients.includes(email)) {
+                showAlert('Email already added', 'error');
+                return;
+            }
+            recipients.push(email);
+            document.getElementById('emailInput').value = '';
+            updateRecipientsList();
+        }
+
+        function removeRecipient(email) {
+            recipients = recipients.filter(r => r !== email);
+            updateRecipientsList();
+        }
+
+        function updateRecipientsList() {
+            const container = document.getElementById('recipientsList');
+            container.innerHTML = recipients.map(email => `
+                <div class="recipient-chip">
+                    ${email}
+                    <button type="button" onclick="removeRecipient('${email}')">×</button>
+                </div>
+            `).join('');
+        }
+
+        // Template Content
+        async function loadTemplateContent() {
+            const templateName = document.getElementById('templateSelect').value;
+            const variablesContainer = document.getElementById('variablesContainer');
+            const variableInputs = document.getElementById('variableInputs');
+            
+            if (!templateName) {
+                document.getElementById('message').value = '';
+                variablesContainer.style.display = 'none';
+                variableInputs.innerHTML = '';
+                updatePreview();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/templates/${templateName}`);
+                const template = await response.json();
+                document.getElementById('message').value = template.content;
+                
+                // Extract variables from template
+                const variables = extractVariables(template.content);
+                
+                if (variables.length > 0) {
+                    variablesContainer.style.display = 'block';
+                    variableInputs.innerHTML = variables.map(varName => `
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-size: 13px; font-weight: 500; color: #1e40af; margin-bottom: 4px;">${varName}</label>
+                            <input type="text" class="template-variable" data-variable="${varName}" placeholder="Enter ${varName}..." style="width: 100%; padding: 8px 12px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 13px;">
+                        </div>
+                    `).join('');
+                } else {
+                    variablesContainer.style.display = 'none';
+                    variableInputs.innerHTML = '';
+                }
+                
+                updatePreview();
+            } catch (error) {
+                showAlert('Failed to load template', 'error');
+            }
+        }
+
+        function extractVariables(content) {
+            const variables = new Set();
+            
+            // Match {{ variable_name }} or {{ variable_name or "default" }}
+            const variableRegex = /\{\{\s*(\w+)(?:\s|}}|\||or)/g;
+            let match;
+            
+            while ((match = variableRegex.exec(content)) !== null) {
+                const varName = match[1];
+                // Add all found variables
+                variables.add(varName);
+            }
+            
+            // Convert to array and return sorted
+            return Array.from(variables).sort();
+        }
+
+        function updatePreview() {
+            const message = document.getElementById('message').value;
+            const preview = document.getElementById('preview');
+
+            if (!message.trim()) {
+                preview.innerHTML = 'Select a template or enter message to preview';
+                preview.className = 'preview-empty';
+                return;
+            }
+
+            preview.className = 'preview-content';
+            preview.innerHTML = message.includes('<') ? message : `<p>${message}</p>`;
+        }
+
+        // Send Email
+        async function sendEmail() {
+            const subject = document.getElementById('subject').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const templateSelect = document.getElementById('templateSelect');
+            const templateName = templateSelect.value || null;
+            const ccMe = document.getElementById('ccMe').checked;
+
+            if (!recipients.length) {
+                showAlert('Add at least one recipient', 'error');
+                return;
+            }
+            if (!subject) {
+                showAlert('Enter a subject', 'error');
+                return;
+            }
+            if (!message) {
+                showAlert('Enter a message', 'error');
+                return;
+            }
+
+            // Collect template variables
+            const variables = {};
+            const variableInputs = document.querySelectorAll('.template-variable');
+            let allVariablesFilled = true;
+            
+            variableInputs.forEach(input => {
+                const varName = input.dataset.variable;
+                const value = input.value.trim();
+                if (!value) {
+                    allVariablesFilled = false;
+                    input.style.borderColor = '#ef4444';
+                    input.style.backgroundColor = '#fee2e2';
+                } else {
+                    input.style.borderColor = '#93c5fd';
+                    input.style.backgroundColor = 'white';
+                    variables[varName] = value;
+                }
+            });
+
+            if (!allVariablesFilled && variableInputs.length > 0) {
+                showAlert('Please fill in all template variables', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/email/send-html', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: recipients,
+                        subject,
+                        html_body: message,
+                        variables: Object.keys(variables).length > 0 ? variables : undefined,
+                        template_name: templateName
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('✓ Email sent successfully!', 'success');
+                    document.getElementById('subject').value = '';
+                    document.getElementById('message').value = '';
+                    recipients = [];
+                    updateRecipientsList();
+                    updatePreview();
+                    document.getElementById('templateSelect').value = '';
+                    document.getElementById('variablesContainer').style.display = 'none';
+                    document.getElementById('variableInputs').innerHTML = '';
+                    await loadHistory();
+                } else {
+                    showAlert('Failed to send email', 'error');
+                }
+            } catch (error) {
+                showAlert('Error sending email', 'error');
+            }
+        }
+
+        // Template CRUD
+        function openNewTemplateModal() {
+            document.getElementById('templateName').value = '';
+            document.getElementById('templateContent').value = '';
+            openModal('templateModal');
+        }
+
+        async function saveTemplate(e) {
+            e.preventDefault();
+            const name = document.getElementById('templateName').value;
+            const content = document.getElementById('templateContent').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/templates`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, content })
+                });
+
+                if (response.ok) {
+                    showAlert('Template created!', 'success');
+                    closeModal('templateModal');
+                    await loadTemplates();
+                }
+            } catch (error) {
+                showAlert('Error creating template', 'error');
+            }
+        }
+
+        async function editTemplate(name) {
+            try {
+                const response = await fetch(`${API_BASE}/templates/${name}`);
+                const template = await response.json();
+                document.getElementById('editTemplateId').value = name;
+                document.getElementById('editTemplateName').value = template.name;
+                document.getElementById('editTemplateContent').value = template.content;
+                openModal('editTemplateModal');
+            } catch (error) {
+                showAlert('Error loading template', 'error');
+            }
+        }
+
+        async function saveEditTemplate(e) {
+            e.preventDefault();
+            const oldName = document.getElementById('editTemplateId').value;
+            const newName = document.getElementById('editTemplateName').value;
+            const content = document.getElementById('editTemplateContent').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/templates/${oldName}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: newName, content })
+                });
+
+                if (response.ok) {
+                    showAlert('Template updated!', 'success');
+                    closeModal('editTemplateModal');
+                    await loadTemplates();
+                }
+            } catch (error) {
+                showAlert('Error updating template', 'error');
+            }
+        }
+
+        async function deleteTemplate(name) {
+            if (!confirm(`Delete "${name}"?`)) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/templates/${name}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showAlert('Template deleted!', 'success');
+                    await loadTemplates();
+                }
+            } catch (error) {
+                showAlert('Error deleting template', 'error');
+            }
+        }
+
+        // Utilities
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} show`;
+            alert.textContent = message;
+            container.appendChild(alert);
+
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Enter key for email
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.id === 'emailInput') {
+                e.preventDefault();
+                addRecipient();
+            }
+        });
+
+        // Close modal on background click
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            const token = sessionStorage.getItem('auth_token');
+            if (token) {
+                isAuthenticated = true;
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainDashboard').classList.add('show');
+                initDashboard();
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>

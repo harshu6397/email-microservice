@@ -28,6 +28,8 @@ class HTMLEmailRequest(BaseModel):
     bcc: Optional[List[EmailStr]] = None
     from_email: Optional[EmailStr] = None
     from_name: Optional[str] = None
+    variables: Optional[Dict[str, Any]] = None
+    template_name: Optional[str] = None
 
 
 class TemplateEmailRequest(BaseModel):

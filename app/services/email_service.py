@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from typing import List, Optional, Dict, Any
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound
+from jinja2 import Environment, BaseLoader, TemplateNotFound, Template
 import os
 
 from app.config.settings import settings
@@ -21,6 +21,32 @@ from app.core.logging import get_logger
 logger = get_logger(__name__)
 
 
+class MongoDBTemplateLoader(BaseLoader):
+    """Jinja2 template loader that loads templates from MongoDB."""
+    
+    async def get_source(self, environment, template_name):
+        """Load template from MongoDB."""
+        try:
+            from app.core.database import get_db
+            db = get_db()
+            
+            template_doc = await db.email_templates.find_one({"name": template_name})
+            if not template_doc:
+                raise TemplateNotFound(template_name)
+            
+            source = template_doc["content"]
+            
+            # Return (source, filename, uptodate_func)
+            # The uptodate function is used for checking if template needs reload
+            def uptodate():
+                return False  # Always reload from DB
+            
+            return source, None, uptodate
+        except Exception as e:
+            logger.error(f"Failed to load template from MongoDB: {e}")
+            raise TemplateNotFound(template_name)
+
+
 class EmailService:
     """Email service for sending emails via SMTP."""
     
@@ -33,13 +59,8 @@ class EmailService:
         self.default_from_email = settings.default_from_email
         self.default_from_name = settings.default_from_name
         
-        # Initialize Jinja2 environment for templates
-        template_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
-        if os.path.exists(template_dir):
-            self.jinja_env = Environment(loader=FileSystemLoader(template_dir))
-        else:
-            self.jinja_env = None
-            logger.warning("Templates directory not found. Template emails will not work.")
+        # Initialize Jinja2 environment with MongoDB loader
+        self.jinja_env = Environment(loader=MongoDBTemplateLoader())
     
     async def _create_smtp_client(self) -> aiosmtplib.SMTP:
         """Create and configure SMTP client."""
@@ -144,6 +165,17 @@ class EmailService:
         try:
             logger.info(f"Sending HTML email to: {email_request.to}")
             
+            # Render HTML body if variables are provided
+            html_body = email_request.html_body
+            if email_request.variables:
+                try:
+                    # Create a Jinja2 template from the HTML body string
+                    template = self.jinja_env.from_string(html_body)
+                    html_body = template.render(**email_request.variables)
+                except Exception as e:
+                    logger.error(f"Failed to render template with variables: {e}")
+                    raise EmailSendError(f"Failed to render template with variables: {str(e)}")
+            
             # Create multipart message
             from_addr = email_request.from_email or self.default_from_email
             sender_name = email_request.from_name or self.default_from_name
@@ -163,7 +195,7 @@ class EmailService:
                 msg.attach(text_part)
             
             # Add HTML version
-            html_part = MIMEText(email_request.html_body, "html")
+            html_part = MIMEText(html_body, "html")
             msg.attach(html_part)
             
             # Send email
@@ -190,19 +222,16 @@ class EmailService:
             raise EmailSendError(f"Failed to send HTML email: {str(e)}")
     
     async def send_template_email(self, email_request: TemplateEmailRequest) -> str:
-        """Send an email using a Jinja2 template."""
+        """Send an email using a MongoDB template."""
         try:
-            if not self.jinja_env:
-                raise TemplateNotFoundError("Template engine not available")
-            
             logger.info(f"Sending template email '{email_request.template_name}' to: {email_request.to}")
             
-            # Load and render template
+            # Load template from MongoDB
             try:
-                template = self.jinja_env.get_template(f"{email_request.template_name}.html")
+                template = self.jinja_env.get_template(email_request.template_name)
                 html_body = template.render(**email_request.template_data)
             except TemplateNotFound:
-                raise TemplateNotFoundError(f"Template '{email_request.template_name}' not found")
+                raise TemplateNotFoundError(f"Template '{email_request.template_name}' not found in database")
             
             # Create HTML email request
             html_request = HTMLEmailRequest(

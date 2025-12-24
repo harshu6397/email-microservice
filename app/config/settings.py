@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     api_description: str = "A microservice for sending emails"
     api_version: str = "1.0.0"
     
+    # Security Configuration
+    docs_password: str = "admin"
+    
+    # MongoDB Configuration
+    mongo_url: str
+    mongo_db: str = "email_service"
+    
     # Application Settings
     debug: bool = False
     
